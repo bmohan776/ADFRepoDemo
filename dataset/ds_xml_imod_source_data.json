@@ -1,0 +1,22 @@
+{
+	"name": "ds_xml_imod_source_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ablob_covidreportingsa",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ds_dynamics_imodule"
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "donation_export.xml",
+				"container": "imod"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

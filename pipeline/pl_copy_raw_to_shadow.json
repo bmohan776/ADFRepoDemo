@@ -1,0 +1,305 @@
+{
+	"name": "pl_copy_raw_to_shadow",
+	"properties": {
+		"activities": [
+			{
+				"name": "reload master_program",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_master_program",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_master_program"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_master_program"
+						}
+					}
+				]
+			},
+			{
+				"name": "reload master_course",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_master_course",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_master_course"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_master_course"
+						}
+					}
+				]
+			},
+			{
+				"name": "reload master_perosn",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "reload master_program",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "reload master_course",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_master_person",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_master_person"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_master_person"
+						}
+					}
+				]
+			},
+			{
+				"name": "reload student_program",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "reload master_perosn",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_studentprogram",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_studentprogram"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_studentprogram"
+						}
+					}
+				]
+			},
+			{
+				"name": "reload student_session",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "reload student_program",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_student_session",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_student_session"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_student_session"
+						}
+					}
+				]
+			},
+			{
+				"name": "reload student_course",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "reload student_session",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DynamicsSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE IF EXISTS yu_student_course",
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_src_dynamics_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dynamics_table": "yu_student_course"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_trg_ppd_shadow_db",
+						"type": "DatasetReference",
+						"parameters": {
+							"trg_sql_table": "yu_student_course"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "pl_iam_ppd_shadow"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-30T15:05:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

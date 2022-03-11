@@ -1,0 +1,21 @@
+{
+	"name": "ds_imodule_http_xml_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "imodule_HttpServer_API",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ds_dynamics_imodule"
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "/ws/21/transactionsquery.asmx"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

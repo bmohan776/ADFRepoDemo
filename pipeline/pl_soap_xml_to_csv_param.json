@@ -1,0 +1,447 @@
+{
+	"name": "pl_soap_xml_to_csv_param",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Full SOAP donation information",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "XmlSource",
+						"additionalColumns": [
+							{
+								"name": "p1",
+								"value": {
+									"value": "@pipeline().parameters.p1",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "controlid",
+								"value": {
+									"value": "@pipeline().parameters.controlId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "login",
+								"value": {
+									"value": "@pipeline().parameters.login",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "password",
+								"value": {
+									"value": "@pipeline().parameters.password",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "changedFrom",
+								"value": {
+									"value": "@pipeline().parameters.changedFrom",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "changedTo",
+								"value": {
+									"value": "@pipeline().parameters.changedTo",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "POST",
+							"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com\n",
+							"requestBody": {
+								"value": "@{replace(replace(replace(replace(replace(replace('<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetMembersChangedDuring xmlns=\"http://imodules.com/WebServices/ControlQuery/\">\n      <login>?login</login>\n      <password>?password</password>\n      <controlId>?p1</controlId>\n      <columns>first_name,last_name,maiden_last_name,address_1,address_2,address_type,city,country,email_address,employer,phone_number,pref_class_year,pref_school_code,prefix,spousepartner_first_name,spousepartner_last_name,state,zipcode,anonymous gift,joint gift indicator,makeagift-donationamount,tribute gift name,tribute gift notification address,tribute gift notification name,tribute gift occasion,tribute gift type</columns>\n      <changedFrom>?changedFrom</changedFrom>\n      <changedTo>?changedTo</changedTo>\n      <includeNonMembers>true</includeNonMembers>\n      <includeBlankIds>true</includeBlankIds>\n      <includeTransactions>true</includeTransactions>\n      <includeTransactionDetails>true</includeTransactionDetails>\n      <includeUnreviewed>true</includeUnreviewed>\n      <filter>?controlid</filter>\n    </GetMembersChangedDuring>\n  </soap:Body>\n</soap:Envelope>', '?p1', pipeline().parameters.p1), '?controlid', pipeline().parameters.controlId), '?login', pipeline().parameters.login), '?password', pipeline().parameters.password), '?changedFrom', pipeline().parameters.changedFrom), '?changedTo', pipeline().parameters.changedTo)}\n",
+								"type": "Expression"
+							},
+							"requestTimeout": ""
+						},
+						"formatSettings": {
+							"type": "XmlReadSettings",
+							"validationMode": "none",
+							"namespaces": true
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['Column']['@Value']"
+								},
+								"sink": {
+									"name": "Total",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['@Type']"
+								},
+								"sink": {
+									"name": "Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['@Transaction_Item_Id']"
+								},
+								"sink": {
+									"name": "Transaction_Item_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['TransactionId']"
+								},
+								"sink": {
+									"name": "TransactionId",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['Amount']"
+								},
+								"sink": {
+									"name": "Amount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['TotalScheduledAmount']"
+								},
+								"sink": {
+									"name": "TotalScheduledAmount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['@Transaction_Id']"
+								},
+								"sink": {
+									"name": "Transaction_Id"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['@IsSuccess']"
+								},
+								"sink": {
+									"name": "IsSuccess"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['@IsReviewed']"
+								},
+								"sink": {
+									"name": "IsReviewed"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['@Instance_Id']"
+								},
+								"sink": {
+									"name": "Instance_Id"
+								}
+							},
+							{
+								"source": {
+									"path": "['@Imod_Member_Id']"
+								},
+								"sink": {
+									"name": "Imod_Member_Id"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][0]['@Value']"
+								},
+								"sink": {
+									"name": "First_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][1]['@Value']"
+								},
+								"sink": {
+									"name": "Last_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][2]['@Value']"
+								},
+								"sink": {
+									"name": "maiden_last_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][3]['@Value']"
+								},
+								"sink": {
+									"name": "address_1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][4]['@Value']"
+								},
+								"sink": {
+									"name": "address_2",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][5]['@Value']"
+								},
+								"sink": {
+									"name": "address_type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][6]['@Value']"
+								},
+								"sink": {
+									"name": "city",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][7]['@Value']"
+								},
+								"sink": {
+									"name": "country",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][8]['@Value']"
+								},
+								"sink": {
+									"name": "email_address"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][9]['@Value']"
+								},
+								"sink": {
+									"name": "employer",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][10]['@Value']"
+								},
+								"sink": {
+									"name": "phone_number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][11]['@Value']"
+								},
+								"sink": {
+									"name": "pref_class_year",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][12]['@Value']"
+								},
+								"sink": {
+									"name": "pref_school_code",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][13]['@Value']"
+								},
+								"sink": {
+									"name": "prefix",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][14]['@Value']"
+								},
+								"sink": {
+									"name": "spousepartner_first_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][15]['@Value']"
+								},
+								"sink": {
+									"name": "spousepartner_last_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][16]['@Value']"
+								},
+								"sink": {
+									"name": "state",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][17]['@Value']"
+								},
+								"sink": {
+									"name": "zipcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Column'][0]['@Value']"
+								},
+								"sink": {
+									"name": "anonymous gift",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['Column'][0]['@Value']"
+								},
+								"sink": {
+									"name": "amount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['Column'][1]['@Value']"
+								},
+								"sink": {
+									"name": "purchasedate",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['Column'][2]['@Value']"
+								},
+								"sink": {
+									"name": "authorizationcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Instances']['Instance']['Transactions']['Transaction']['Column'][3]['@Value']"
+								},
+								"sink": {
+									"name": "custtransnum",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['soap:Envelope']['soap:Body']['GetMembersChangedDuringResponse']['GetMembersChangedDuringResult']['MemberInformation']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_imodule_soap_api_call_controlquery",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_csv_input",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"controlId": {
+				"type": "String",
+				"defaultValue": "[Email_Address] is not null"
+			},
+			"p1": {
+				"type": "String",
+				"defaultValue": "1063"
+			},
+			"login": {
+				"type": "String",
+				"defaultValue": "E629F947-6D69-471B-875D-14277FEA4A53"
+			},
+			"password": {
+				"type": "String",
+				"defaultValue": "GSy7LgFmdFInBpHcoCS2"
+			},
+			"changedFrom": {
+				"type": "String",
+				"defaultValue": "2022-02-07"
+			},
+			"changedTo": {
+				"type": "String",
+				"defaultValue": "2022-02-08"
+			}
+		},
+		"folder": {
+			"name": "pl_ssrp_eip"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-02-08T15:35:25Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

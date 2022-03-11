@@ -1,0 +1,27 @@
+{
+	"name": "ds_trg_ppd_shadow_db",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ppdshadowdb",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"trg_sql_table": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ds_iam_ppd_shadow"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"table": {
+				"value": "@dataset().trg_sql_table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

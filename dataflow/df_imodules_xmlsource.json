@@ -1,0 +1,38 @@
+{
+	"name": "df_imodules_xmlsource",
+	"properties": {
+		"folder": {
+			"name": "df_dynamics_imdoule"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_xml_imod_source_data",
+						"type": "DatasetReference"
+					},
+					"name": "imodulesxmlsource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dynamics_dest",
+						"type": "DatasetReference"
+					},
+					"name": "loadsinktoDataVerse"
+				}
+			],
+			"transformations": [
+				{
+					"name": "xmlFlatten"
+				},
+				{
+					"name": "xmltoDerivedColumn"
+				}
+			],
+			"script": "source(output(\n\t\t{http://schemas.xmlsoap.org/soap/envelope/,Envelope} as ({http://schemas.xmlsoap.org/soap/envelope/,Body} as ({http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse} as ({http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult} as ({http://imodules.com/WebServices/TransactionsQuery/,Transaction} as ({@IsReviewed} as boolean, {@IsSuccess} as boolean, {@Transaction_Id} as short, {http://imodules.com/WebServices/TransactionsQuery/,Column} as ({@Name} as string, {@Value} as string, {http://imodules.com/WebServices/TransactionsQuery/,Designations} as ({http://imodules.com/WebServices/TransactionsQuery/,Designation} as ({@Amount} as double, {@DesignationInstructions} as string, {@ID} as short, {@Text} as string, {@Value} as short, {http://imodules.com/WebServices/TransactionsQuery/,Ids} as ({http://imodules.com/WebServices/TransactionsQuery/,Id} as ({@Name} as string, {@Value} as string)[]))))[], {http://imodules.com/WebServices/TransactionsQuery/,LinkedTransaction} as ({http://imodules.com/WebServices/TransactionsQuery/,Amount} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,ControlId} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,ControlName} as string, {http://imodules.com/WebServices/TransactionsQuery/,ControlType} as string, {http://imodules.com/WebServices/TransactionsQuery/,PaymentType} as string, {http://imodules.com/WebServices/TransactionsQuery/,TotalScheduledAmount} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,TransactionId} as boolean), {http://imodules.com/WebServices/TransactionsQuery/,TransactionItems} as ({http://imodules.com/WebServices/TransactionsQuery/,TransactionItem} as ({@Imod_Member_Id} as integer, {@Transaction_Item_Id} as string, {@Type} as string, {http://imodules.com/WebServices/TransactionsQuery/,Column} as ({@Name} as string, {@Value} as double))))[]))))\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tvalidationMode: 'none',\n\tnamespaces: true) ~> imodulesxmlsource\nimodulesxmlsource foldDown(unroll({http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}),\n\tmapColumn(\n\t\tTransaction_Id = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{@Transaction_Id},\n\t\tColumn = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,Column},\n\t\tLinkedTransaction = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,LinkedTransaction},\n\t\tTransactionItems = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,TransactionItems}\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> xmlFlatten\nxmlFlatten derive(amount = iif(Column[1].{@Name} ==\"amount\" , Column[1].{@Value},\"0\" ),\n\t\tpurchasedate = iif(Column[2].{@Name} ==\"purchasedate\" , Column[2].{@Value}, Column[2].{@Value} ),\n\t\tTransaction_Id = Transaction_Id,\n\t\tbillingname = iif(Column[8].{@Name} ==\"billingname\" , Column[8].{@Value}, Column[8].{@Value})) ~> xmltoDerivedColumn\nxmltoDerivedColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tnew_purchasedate = purchasedate,\n\t\tnew_transactionid = Transaction_Id,\n\t\tnew_billingname = billingname\n\t)) ~> loadsinktoDataVerse"
+		}
+	}
+}

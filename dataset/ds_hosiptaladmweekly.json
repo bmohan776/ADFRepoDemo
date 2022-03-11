@@ -1,0 +1,27 @@
+{
+	"name": "ds_hosiptaladmweekly",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ablob_dlen_covidreportingdlsa",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ds_covidreporting"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "ecdc/hosiptalweekly",
+				"fileSystem": "processed"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

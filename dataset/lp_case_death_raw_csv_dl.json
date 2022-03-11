@@ -1,0 +1,37 @@
+{
+	"name": "lp_case_death_raw_csv_dl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lp_adls_covidreportingdl",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"fileName": {
+				"type": "string",
+				"defaultValue": "cases_deaths.cvs"
+			}
+		},
+		"folder": {
+			"name": "lp_covidreporting"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				},
+				"folderPath": "ecdc",
+				"fileSystem": "raw-lp"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

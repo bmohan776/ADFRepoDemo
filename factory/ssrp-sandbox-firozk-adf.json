@@ -1,0 +1,9 @@
+{
+	"name": "ssrp-sandbox-firozk-adf",
+	"location": "canadacentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "21bc2351-c1ad-4896-8971-f19285980b19",
+		"tenantId": "34531318-7011-4fd4-87f0-a43816c49bd0"
+	}
+}

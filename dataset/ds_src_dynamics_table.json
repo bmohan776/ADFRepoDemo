@@ -1,0 +1,27 @@
+{
+	"name": "ds_src_dynamics_table",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dynamics_01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_dynamics_table": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ds_iam_ppd_shadow"
+		},
+		"annotations": [],
+		"type": "DynamicsEntity",
+		"schema": [],
+		"typeProperties": {
+			"entityName": {
+				"value": "@dataset().src_dynamics_table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

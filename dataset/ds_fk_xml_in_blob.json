@@ -1,0 +1,20 @@
+{
+	"name": "ds_fk_xml_in_blob",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ablob_covidreportingsa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "infile.xml",
+				"folderPath": "in_xml",
+				"container": "imodule"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

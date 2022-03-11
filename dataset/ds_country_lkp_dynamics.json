@@ -1,0 +1,19 @@
+{
+	"name": "ds_country_lkp_dynamics",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dynamics_01",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ds_dynamics_imodule"
+		},
+		"annotations": [],
+		"type": "DynamicsEntity",
+		"schema": [],
+		"typeProperties": {
+			"entityName": "new_country_lookup"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,353 @@
+{
+	"name": "pl_soap_xml_to_csv",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy csv data",
+				"description": "Save SOAP XML payload to blob storage (imodule/in_xml)  ",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:05:00",
+					"retry": 5,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "XmlSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "POST",
+							"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com",
+							"requestBody": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tran=\"http://imodules.com/WebServices/TransactionsQuery/\">\n   <soapenv:Header/>\n   <soapenv:Body>\n      <tran:GetTransactionsAllBetween>\n         <!--Optional:-->\n         <tran:login>E629F947-6D69-471B-875D-14277FEA4A53</tran:login>\n         <!--Optional:-->\n         <tran:password>GSy7LgFmdFInBpHcoCS2</tran:password>\n         <tran:startDate>2022-01-26</tran:startDate>\n         <tran:endDate>2022-01-27</tran:endDate>\n         <tran:includeFailedTransactions>true</tran:includeFailedTransactions>\n         <tran:includeNonMembers>true</tran:includeNonMembers>\n         <tran:includeTransactionDetails>true</tran:includeTransactionDetails>\n         <tran:includeUnreviewed>true</tran:includeUnreviewed>\n      </tran:GetTransactionsAllBetween>\n   </soapenv:Body>\n</soapenv:Envelope>",
+							"requestTimeout": ""
+						},
+						"formatSettings": {
+							"type": "XmlReadSettings",
+							"validationMode": "none",
+							"namespaces": true
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['TransactionItems']['TransactionItem']['Column']['@Name']"
+								},
+								"sink": {
+									"name": "ColumnName"
+								}
+							},
+							{
+								"source": {
+									"path": "['TransactionItems']['TransactionItem']['Column']['@Value']"
+								},
+								"sink": {
+									"name": "new_total"
+								}
+							},
+							{
+								"source": {
+									"path": "['TransactionItems']['TransactionItem']['@Imod_Member_Id']"
+								},
+								"sink": {
+									"name": "Imod_Member_Id"
+								}
+							},
+							{
+								"source": {
+									"path": "['TransactionItems']['TransactionItem']['@Type']"
+								},
+								"sink": {
+									"name": "Type"
+								}
+							},
+							{
+								"source": {
+									"path": "['TransactionItems']['TransactionItem']['@Transaction_Item_Id']"
+								},
+								"sink": {
+									"name": "Transaction_Item_Id"
+								}
+							},
+							{
+								"source": {
+									"path": "['LinkedTransaction']['TransactionId']"
+								},
+								"sink": {
+									"name": "TransactionId"
+								}
+							},
+							{
+								"source": {
+									"path": "['LinkedTransaction']['Amount']"
+								},
+								"sink": {
+									"name": "Amount"
+								}
+							},
+							{
+								"source": {
+									"path": "['LinkedTransaction']['ControlId']"
+								},
+								"sink": {
+									"name": "ControlId"
+								}
+							},
+							{
+								"source": {
+									"path": "['LinkedTransaction']['TotalScheduledAmount']"
+								},
+								"sink": {
+									"name": "TotalScheduledAmount"
+								}
+							},
+							{
+								"source": {
+									"path": "['@Transaction_Id']"
+								},
+								"sink": {
+									"name": "Transaction_Id",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][0]['@Value']"
+								},
+								"sink": {
+									"name": "new_amount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][1]['@Value']"
+								},
+								"sink": {
+									"name": "new_purchasedate",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][2]['@Value']"
+								},
+								"sink": {
+									"name": "new_authorizationcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][3]['@Value']"
+								},
+								"sink": {
+									"name": "new_custtransnum",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][4]['@Value']"
+								},
+								"sink": {
+									"name": "new_retrievalcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][5]['@Value']"
+								},
+								"sink": {
+									"name": "new_appealcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][6]['@Value']"
+								},
+								"sink": {
+									"name": "new_transactionlastupdated",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][7]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][8]['@Value']"
+								},
+								"sink": {
+									"name": "new_creditcardtype",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][9]['@Value']"
+								},
+								"sink": {
+									"name": "new_lastfourdigits",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][16]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingemail",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][17]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingphone",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][18]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingstreet1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][19]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingstreet2",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][20]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingcity",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][21]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingstate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][22]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingzip",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][23]['@Value']"
+								},
+								"sink": {
+									"name": "new_billingcountry",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][24]['@Value']"
+								},
+								"sink": {
+									"name": "new_paymenttype",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Column'][36]['@Value']"
+								},
+								"sink": {
+									"name": "new_control_id",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['@Text']"
+								},
+								"sink": {
+									"name": "new_Designation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['Ids']['Id'][0]['@Value']"
+								},
+								"sink": {
+									"name": "new_alloc",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_imodule_soap_api_call",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_donation_parse_csv",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-02-02T15:59:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

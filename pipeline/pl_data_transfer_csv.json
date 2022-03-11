@@ -1,0 +1,212 @@
+{
+	"name": "pl_data_transfer_csv",
+	"properties": {
+		"activities": [
+			{
+				"name": "copy pl_data_transfer_csv",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DynamicsSink",
+						"writeBatchSize": 10,
+						"writeBehavior": "upsert",
+						"ignoreNullValues": false,
+						"alternateKeyName": "new_transactionidkey"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Campaign Name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_campaignname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "id_number",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_constituent_id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "member_id",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_imod_member_id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "first_name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_first_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "last_name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_last_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "address_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_address_1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "city",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_city",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "email_address",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_email_address",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "state",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_state",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Transaction ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_transactionid",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "Donation Amount",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_amount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer Trans Number",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_custtransnum",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Designation Name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_designationname",
+									"type": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_donation_trn_src",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_dynamics_dest",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "pl_xml_imodule_dynamics"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-01-21T17:24:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

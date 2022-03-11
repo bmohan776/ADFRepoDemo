@@ -1,0 +1,29 @@
+{
+	"name": "lp_population_raw_gz",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lp_ablob_covidreportingsa",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "lp_covidreporting"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "tps00010.tsv.gz",
+				"container": "population-lp"
+			},
+			"columnDelimiter": "\t",
+			"compressionCodec": "gzip",
+			"compressionLevel": "Optimal",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
