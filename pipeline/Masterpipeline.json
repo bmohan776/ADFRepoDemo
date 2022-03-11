@@ -1,0 +1,136 @@
+{
+	"name": "Masterpipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute SOAP Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_soap_xml_to_csv_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"login": {
+							"value": "@pipeline().parameters.login",
+							"type": "Expression"
+						},
+						"password": {
+							"value": "@pipeline().parameters.password",
+							"type": "Expression"
+						},
+						"startDate": {
+							"value": "@pipeline().parameters.startDate",
+							"type": "Expression"
+						},
+						"endDate": {
+							"value": "@pipeline().parameters.endDate",
+							"type": "Expression"
+						},
+						"includeFailedTransactions": {
+							"value": "@pipeline().parameters.includeFailedTransactions",
+							"type": "Expression"
+						},
+						"includeNonMembers": {
+							"value": "@pipeline().parameters.includeNonMembers",
+							"type": "Expression"
+						},
+						"includeTransactionDetails": {
+							"value": "@pipeline().parameters.includeTransactionDetails",
+							"type": "Expression"
+						},
+						"includeUnreviewed": {
+							"value": "@pipeline().parameters.includeUnreviewed",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Execute Transform Multiple to Merge Pipeline",
+				"description": "Execute Transform Multiple Files CVS to Merge Pipeline, Lookup Country Source, Combine other Source Data into Single Output(DataFlow)",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute SOAP Pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_transfer_input_files_output_dataflow",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Execute Read output to CDS Pipeline",
+				"description": "Execute Read output to CDS Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute Transform Multiple to Merge Pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_upsert_ouput_files_to_CDS",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"login": {
+				"type": "string",
+				"defaultValue": "E629F947-6D69-471B-875D-14277FEA4A53"
+			},
+			"password": {
+				"type": "string",
+				"defaultValue": "GSy7LgFmdFInBpHcoCS2"
+			},
+			"startDate": {
+				"type": "string",
+				"defaultValue": "2022-02-01"
+			},
+			"endDate": {
+				"type": "string",
+				"defaultValue": "2022-03-11"
+			},
+			"includeFailedTransactions": {
+				"type": "string",
+				"defaultValue": "true"
+			},
+			"includeNonMembers": {
+				"type": "string",
+				"defaultValue": "true"
+			},
+			"includeTransactionDetails": {
+				"type": "string",
+				"defaultValue": "true"
+			},
+			"includeUnreviewed": {
+				"type": "string",
+				"defaultValue": "true"
+			}
+		},
+		"folder": {
+			"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-03-11T17:32:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

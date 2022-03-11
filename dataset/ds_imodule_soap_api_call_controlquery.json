@@ -1,0 +1,21 @@
+{
+	"name": "ds_imodule_soap_api_call_controlquery",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "imodule_HttpServer_API",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ds_dynamics_imodule/ds_ssrp_eip"
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "/ws/21/controlquery.asmx"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

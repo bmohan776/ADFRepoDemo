@@ -1,0 +1,124 @@
+{
+	"name": "pl_ingest_csv_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy ingest_csv_data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DynamicsSink",
+						"writeBatchSize": 10,
+						"writeBehavior": "upsert",
+						"ignoreNullValues": false,
+						"alternateKeyName": "new_transactionidkey"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Transaction_Id",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_transactionid",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "imod_member_id",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_imod_member_id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "purchasedate",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_campaignname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "billingname",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_billingname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "custtransnum",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "new_custtransnum",
+									"type": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_donation_parse_csv",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_dynamics_dest",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "pl_xml_imodule_dynamics"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-01-27T19:11:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

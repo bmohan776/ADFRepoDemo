@@ -1,0 +1,48 @@
+{
+	"name": "df_transfer_mut_source_output",
+	"properties": {
+		"folder": {
+			"name": "pl_ssrp_eip"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_csv_ouput",
+						"type": "DatasetReference"
+					},
+					"name": "sourceoutput"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_country_lkp",
+						"type": "DatasetReference"
+					},
+					"name": "sourcecountry"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_csv_ouput",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SelectSource"
+				},
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "Select1"
+				}
+			],
+			"script": "source(output(\n\t\tColumnName as string,\n\t\tnew_total as short,\n\t\tImod_Member_Id as integer,\n\t\tType as string,\n\t\tTransaction_Item_Id as string,\n\t\tTransactionId as boolean,\n\t\tAmount as boolean,\n\t\tControlId as boolean,\n\t\tTotalScheduledAmount as boolean,\n\t\tTransaction_Id as short,\n\t\tnew_amount as short,\n\t\tnew_purchasedate as string,\n\t\tnew_authorizationcode as string,\n\t\tnew_custtransnum as string,\n\t\tnew_retrievalcode as string,\n\t\tnew_appealcode as string,\n\t\tnew_transactionlastupdated as string,\n\t\tnew_billingname as string,\n\t\tnew_creditcardtype as string,\n\t\tnew_lastfourdigits as short,\n\t\tnew_billingemail as string,\n\t\tnew_billingphone as string,\n\t\tnew_billingstreet1 as string,\n\t\tnew_billingstreet2 as string,\n\t\tnew_billingcity as string,\n\t\tnew_billingstate as string,\n\t\tnew_billingzip as integer,\n\t\tnew_billingcountry as string,\n\t\tnew_paymenttype as string,\n\t\tnew_control_id as short,\n\t\tnew_Designation as string,\n\t\tnew_alloc as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\twildcardPaths:['input'],\n\tpartitionBy('hash', 1)) ~> sourceoutput\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcecountry\nsourceoutput select(mapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectSource\nSelectSource, sourcecountry join(new_billingcountry == country_code_2_digit,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> Join1\nJoin1 select(mapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc,\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tcontinent,\n\t\tpopulation\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['don_output.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc,\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tcontinent,\n\t\tpopulation\n\t),\n\tpartitionBy('hash', 1)) ~> sink1"
+		}
+	}
+}

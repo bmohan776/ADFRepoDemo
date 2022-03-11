@@ -1,0 +1,310 @@
+{
+	"name": "pl_upsert_ouput_files_to_CDS",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata Input",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_csv_ouput",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEachTransfer",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata Input",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata Input').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy mutiple output files to CDS",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"wildcardFolderPath": "output",
+										"wildcardFileName": "*.csv",
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DynamicsSink",
+									"writeBatchSize": 10,
+									"writeBehavior": "upsert",
+									"ignoreNullValues": false,
+									"alternateKeyName": "new_transactionidkey"
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "new_amount",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_amount",
+												"type": "Decimal"
+											}
+										},
+										{
+											"source": {
+												"name": "new_appealcode",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_appealcode",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_authorizationcode",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_authorizationcode",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingcity",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingcity",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "country",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingcountry",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingemail",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingemail",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingname",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingname",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingphone",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingphone",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingstate",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingstate",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingstreet1",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingstreet1",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingstreet2",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingstreet2",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_billingzip",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_billingzip",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_custtransnum",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_custtransnum",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "new_purchasedate",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_purchasedate",
+												"type": "DateTime"
+											}
+										},
+										{
+											"source": {
+												"name": "new_retrievalcode",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_retrievalcode",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "Transaction_Id",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_transactionid",
+												"type": "Int32"
+											}
+										},
+										{
+											"source": {
+												"name": "Imod_Member_Id",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "new_imod_member_id",
+												"type": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_csv_ouput",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_dynamics_dest",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"folder": {
+			"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-02-02T14:24:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
