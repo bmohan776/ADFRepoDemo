@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ssrp-sandbox-firozk-adf"
+		},
+		"imodule_HttpServer_API_password": {
+			"value": ""
+		},
+		"lp_ablob_covidreportingsa_connectionString": {
+			"value": ""
+		},
+		"lp_adls_covidreportingdl_accountKey": {
+			"value": ""
+		},
+		"ls_ablob_covidreportingsa_connectionString": {
+			"value": ""
+		},
+		"ls_ablob_covidreportingsa_s_connectionString": {
+			"value": ""
+		},
+		"ls_ablob_dlen_covidreportingdlsa_accountKey": {
+			"value": ""
+		},
+		"ls_adls_covidreportingdl_s_accountKey": {
+			"value": ""
+		},
+		"ls_dynamics_01_servicePrincipalCredential": {
+			"value": ""
+		},
+		"ls_ppdshadowdb_connectionString": {
+			"value": ""
+		},
+		"imodule_HttpServer_API_properties_typeProperties_url": {
+			"value": "https://apica.imodules.com/"
+		},
+		"imodule_HttpServer_API_properties_typeProperties_userName": {
+			"value": "E629F947-6D69-471B-875D-14277FEA4A53"
+		},
+		"lp_adls_covidreportingdl_properties_typeProperties_url": {
+			"value": "https://ssrpsandboxfirozkadlsa.dfs.core.windows.net"
+		},
+		"lp_http_opendata_ecdc_europa_eu_properties_typeProperties_url": {
+			"value": "@{linkedService().sourceBaseURL}"
+		},
+		"ls_ablob_dlen_covidreportingdlsa_properties_typeProperties_url": {
+			"value": "https://ssrpsandboxfirozkadlsa.dfs.core.windows.net"
+		},
+		"ls_adls_covidreportingdl_s_properties_typeProperties_url": {
+			"value": "https://ssrpsandboxfirozkadlsa.dfs.core.windows.net"
+		},
+		"ls_dynamics_01_properties_typeProperties_servicePrincipalId": {
+			"value": "60991d5b-e5cf-4e9a-97cb-f055f5f241eb"
+		},
+		"ls_http_opendata_ecdc_europe_eu_properties_typeProperties_url": {
+			"value": "@{linkedService().SourceBaseURL}"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

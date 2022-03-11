@@ -1,0 +1,3175 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ssrp-sandbox-firozk-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_exp_soap_xml_payload_blob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy SOAP XML payload to blob storage",
+						"description": "Save SOAP XML payload to blob storage (imodule/in_xml)",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "XmlSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "POST",
+									"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com\n",
+									"requestBody": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tran=\"http://imodules.com/WebServices/TransactionsQuery/\">\n   <soapenv:Header/>\n   <soapenv:Body>\n      <tran:GetTransactionsAllBetween>\n         <!--Optional:-->\n         <tran:login>E629F947-6D69-471B-875D-14277FEA4A53</tran:login>\n         <!--Optional:-->\n         <tran:password>GSy7LgFmdFInBpHcoCS2</tran:password>\n         <tran:startDate>2022-01-21</tran:startDate>\n         <tran:endDate>2022-01-22</tran:endDate>\n         <tran:includeFailedTransactions>true</tran:includeFailedTransactions>\n         <tran:includeNonMembers>true</tran:includeNonMembers>\n         <tran:includeTransactionDetails>true</tran:includeTransactionDetails>\n         <tran:includeUnreviewed>true</tran:includeUnreviewed>\n      </tran:GetTransactionsAllBetween>\n   </soapenv:Body>\n</soapenv:Envelope>",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "XmlReadSettings",
+									"validationMode": "none",
+									"namespaces": true
+								}
+							},
+							"sink": {
+								"type": "DynamicsSink",
+								"writeBatchSize": 10,
+								"writeBehavior": "upsert",
+								"ignoreNullValues": false,
+								"alternateKeyName": "new_transactionidkey"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['Column'][0]['@Name']"
+										},
+										"sink": {
+											"name": "new_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_amount",
+											"type": "Decimal"
+										}
+									}
+								],
+								"collectionReference": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_imodule_soap_api_call",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_dynamics_dest",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-02T14:24:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_http_xml_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy pl http xml data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "XmlSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "POST",
+									"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com",
+									"requestBody": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tran=\"http://imodules.com/WebServices/TransactionsQuery/\">\n   <soapenv:Header/>\n   <soapenv:Body>\n      <tran:GetTransactionsAllBetween>\n         <!--Optional:-->\n         <tran:login>E629F947-6D69-471B-875D-14277FEA4A53</tran:login>\n         <!--Optional:-->\n         <tran:password>GSy7LgFmdFInBpHcoCS2</tran:password>\n         <tran:startDate>2022-01-26</tran:startDate>\n         <tran:endDate>2022-01-27</tran:endDate>\n         <tran:includeFailedTransactions>true</tran:includeFailedTransactions>\n         <tran:includeNonMembers>true</tran:includeNonMembers>\n         <tran:includeTransactionDetails>true</tran:includeTransactionDetails>\n         <tran:includeUnreviewed>true</tran:includeUnreviewed>\n      </tran:GetTransactionsAllBetween>\n   </soapenv:Body>\n</soapenv:Envelope>",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "XmlReadSettings",
+									"validationMode": "none",
+									"namespaces": true
+								}
+							},
+							"sink": {
+								"type": "DynamicsSink",
+								"writeBatchSize": 10,
+								"writeBehavior": "upsert",
+								"ignoreNullValues": false,
+								"alternateKeyName": "new_transactionidkey"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['@Transaction_Id']"
+										},
+										"sink": {
+											"name": "new_transactionid",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_amount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][1]['@Value']"
+										},
+										"sink": {
+											"name": "new_purchasedate",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][2]['@Value']"
+										},
+										"sink": {
+											"name": "new_authorizationcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][3]['@Value']"
+										},
+										"sink": {
+											"name": "new_custtransnum",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][4]['@Value']"
+										},
+										"sink": {
+											"name": "new_retrievalcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][6]['@Value']"
+										},
+										"sink": {
+											"name": "new_transactionlastupdated"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][7]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingname"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][8]['@Value']"
+										},
+										"sink": {
+											"name": "new_creditcardtype"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][9]['@Value']"
+										},
+										"sink": {
+											"name": "new_lastfourdigits"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][16]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingemail"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][18]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstreet1"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][20]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingcity"
+										}
+									}
+								],
+								"collectionReference": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_imodule_http_xml_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_dynamics_dest",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-26T14:18:02Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ingest_csv_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy ingest_csv_data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DynamicsSink",
+								"writeBatchSize": 10,
+								"writeBehavior": "upsert",
+								"ignoreNullValues": false,
+								"alternateKeyName": "new_transactionidkey"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Transaction_Id",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "new_transactionid",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "imod_member_id",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "new_imod_member_id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "purchasedate",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "new_campaignname",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "billingname",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "new_billingname",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "custtransnum",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "new_custtransnum",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_donation_parse_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_dynamics_dest",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-27T19:11:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ingest_ecdc_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup ECDC File List",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_ecdc_file_list",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "excecute copy for every record",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup ECDC File List",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup ECDC File List').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "copy ecdc data",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_ecdc_raw_csv_http",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeURL": {
+													"value": "@item().sourceRelativeURL",
+													"type": "Expression"
+												},
+												"BaseURL": {
+													"value": "@item().sourceBaseURL",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_ecdc_raw_csv_dlsa",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@item().sinkFileName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_covidreporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-12T18:08:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ingest_population_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "check if file exists",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_population_raw_gz",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"timeout": "0.00:10:00",
+							"sleep": 10,
+							"minimumSize": 1024
+						}
+					},
+					{
+						"name": "Get File Metadata",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "check if file exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_population_raw_gz",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"columnCount",
+								"size",
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "If column count matches",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get File Metadata",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('Get File Metadata').output.columnCount,13)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Send Email",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": "http://file_incompatiable",
+										"method": "POST",
+										"headers": {},
+										"body": "dummy"
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "pl_copy_population_data",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "00.00:05:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_population_raw_gz",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_population_raw_tsv",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "Delete Source File",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "pl_copy_population_data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ds_population_raw_gz",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"enableLogging": false,
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_covidreporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-11T21:02:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ingest_population_data_s')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Population Data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:05:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_population_raw_gz_s",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_population_raw_tsv_s",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-03-11T01:18:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ingest_xml_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy xml imodule to Dynamics",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DynamicsSink",
+								"writeBatchSize": 10,
+								"writeBehavior": "upsert",
+								"ignoreNullValues": false,
+								"alternateKeyName": "new_transactionidkey"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_don_json",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_dynamics_dest",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-21T20:38:36Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_soap_xml_to_csv')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy csv data",
+						"description": "Save SOAP XML payload to blob storage (imodule/in_xml)  ",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:05:00",
+							"retry": 5,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "XmlSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "POST",
+									"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com",
+									"requestBody": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tran=\"http://imodules.com/WebServices/TransactionsQuery/\">\n   <soapenv:Header/>\n   <soapenv:Body>\n      <tran:GetTransactionsAllBetween>\n         <!--Optional:-->\n         <tran:login>E629F947-6D69-471B-875D-14277FEA4A53</tran:login>\n         <!--Optional:-->\n         <tran:password>GSy7LgFmdFInBpHcoCS2</tran:password>\n         <tran:startDate>2022-01-26</tran:startDate>\n         <tran:endDate>2022-01-27</tran:endDate>\n         <tran:includeFailedTransactions>true</tran:includeFailedTransactions>\n         <tran:includeNonMembers>true</tran:includeNonMembers>\n         <tran:includeTransactionDetails>true</tran:includeTransactionDetails>\n         <tran:includeUnreviewed>true</tran:includeUnreviewed>\n      </tran:GetTransactionsAllBetween>\n   </soapenv:Body>\n</soapenv:Envelope>",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "XmlReadSettings",
+									"validationMode": "none",
+									"namespaces": true
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['Column']['@Name']"
+										},
+										"sink": {
+											"name": "ColumnName"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['Column']['@Value']"
+										},
+										"sink": {
+											"name": "new_total"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Imod_Member_Id']"
+										},
+										"sink": {
+											"name": "Imod_Member_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Type']"
+										},
+										"sink": {
+											"name": "Type"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Transaction_Item_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Item_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['TransactionId']"
+										},
+										"sink": {
+											"name": "TransactionId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['Amount']"
+										},
+										"sink": {
+											"name": "Amount"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['ControlId']"
+										},
+										"sink": {
+											"name": "ControlId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['TotalScheduledAmount']"
+										},
+										"sink": {
+											"name": "TotalScheduledAmount"
+										}
+									},
+									{
+										"source": {
+											"path": "[['@Transaction_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_amount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][1]['@Value']"
+										},
+										"sink": {
+											"name": "new_purchasedate",
+											"type": "DateTimeOffset"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][2]['@Value']"
+										},
+										"sink": {
+											"name": "new_authorizationcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][3]['@Value']"
+										},
+										"sink": {
+											"name": "new_custtransnum",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][4]['@Value']"
+										},
+										"sink": {
+											"name": "new_retrievalcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][5]['@Value']"
+										},
+										"sink": {
+											"name": "new_appealcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][6]['@Value']"
+										},
+										"sink": {
+											"name": "new_transactionlastupdated",
+											"type": "DateTimeOffset"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][7]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingname",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][8]['@Value']"
+										},
+										"sink": {
+											"name": "new_creditcardtype",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][9]['@Value']"
+										},
+										"sink": {
+											"name": "new_lastfourdigits",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][16]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingemail",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][17]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingphone",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][18]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstreet1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][19]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstreet2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][20]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingcity",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][21]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][22]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingzip",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][23]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingcountry",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][24]['@Value']"
+										},
+										"sink": {
+											"name": "new_paymenttype",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][36]['@Value']"
+										},
+										"sink": {
+											"name": "new_control_id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['@Text']"
+										},
+										"sink": {
+											"name": "new_Designation",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['Ids']['Id'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_alloc",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_imodule_soap_api_call",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_donation_parse_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-02T15:59:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_soap_xml_to_csv_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy csv data",
+						"description": "Save SOAP XML payload to blob storage (imodule/in_xml)  ",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:05:00",
+							"retry": 5,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "XmlSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "POST",
+									"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com",
+									"requestBody": {
+										"value": "@{replace(replace(replace(replace(replace(replace(replace(replace('<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tran=\"http://imodules.com/WebServices/TransactionsQuery/\">\n   <soapenv:Header/>\n   <soapenv:Body>\n      <tran:GetTransactionsAllBetween>\n         <!--Optional:-->\n         <tran:login>?login</tran:login>\n         <!--Optional:-->\n         <tran:password>?password</tran:password>\n         <tran:startDate>?startDate</tran:startDate>\n         <tran:endDate>?endDate</tran:endDate>\n         <tran:includeFailedTransactions>?includeFailedTransactions</tran:includeFailedTransactions>\n         <tran:includeNonMembers>?includeNonMembers</tran:includeNonMembers>\n         <tran:includeTransactionDetails>?includeTransactionDetails</tran:includeTransactionDetails>\n         <tran:includeUnreviewed>?includeUnreviewed</tran:includeUnreviewed>\n      </tran:GetTransactionsAllBetween>\n   </soapenv:Body>\n</soapenv:Envelope>', '?login', pipeline().parameters.login), '?password', pipeline().parameters.password), '?startDate', pipeline().parameters.startDate), '?endDate', pipeline().parameters.endDate), '?includeFailedTransactions', pipeline().parameters.includeFailedTransactions), '?includeNonMembers', pipeline().parameters.includeNonMembers) ,'?includeTransactionDetails', pipeline().parameters.includeTransactionDetails),'?includeUnreviewed', pipeline().parameters.includeUnreviewed)}",
+										"type": "Expression"
+									},
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "XmlReadSettings",
+									"validationMode": "none",
+									"namespaces": true
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['Column']['@Name']"
+										},
+										"sink": {
+											"name": "ColumnName"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['Column']['@Value']"
+										},
+										"sink": {
+											"name": "new_total"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Imod_Member_Id']"
+										},
+										"sink": {
+											"name": "Imod_Member_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Type']"
+										},
+										"sink": {
+											"name": "Type"
+										}
+									},
+									{
+										"source": {
+											"path": "[['TransactionItems']['TransactionItem']['@Transaction_Item_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Item_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['TransactionId']"
+										},
+										"sink": {
+											"name": "TransactionId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['Amount']"
+										},
+										"sink": {
+											"name": "Amount"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['ControlId']"
+										},
+										"sink": {
+											"name": "ControlId"
+										}
+									},
+									{
+										"source": {
+											"path": "[['LinkedTransaction']['TotalScheduledAmount']"
+										},
+										"sink": {
+											"name": "TotalScheduledAmount"
+										}
+									},
+									{
+										"source": {
+											"path": "[['@Transaction_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_amount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][1]['@Value']"
+										},
+										"sink": {
+											"name": "new_purchasedate",
+											"type": "DateTimeOffset"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][2]['@Value']"
+										},
+										"sink": {
+											"name": "new_authorizationcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][3]['@Value']"
+										},
+										"sink": {
+											"name": "new_custtransnum",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][4]['@Value']"
+										},
+										"sink": {
+											"name": "new_retrievalcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][5]['@Value']"
+										},
+										"sink": {
+											"name": "new_appealcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][6]['@Value']"
+										},
+										"sink": {
+											"name": "new_transactionlastupdated",
+											"type": "DateTimeOffset"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][7]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingname",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][8]['@Value']"
+										},
+										"sink": {
+											"name": "new_creditcardtype",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][9]['@Value']"
+										},
+										"sink": {
+											"name": "new_lastfourdigits",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][16]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingemail",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][17]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingphone",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][18]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstreet1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][19]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstreet2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][20]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingcity",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][21]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingstate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][22]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingzip",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][23]['@Value']"
+										},
+										"sink": {
+											"name": "new_billingcountry",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][24]['@Value']"
+										},
+										"sink": {
+											"name": "new_paymenttype",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][36]['@Value']"
+										},
+										"sink": {
+											"name": "new_control_id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['@Text']"
+										},
+										"sink": {
+											"name": "new_Designation",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction'][0]['Column'][41]['Designations']['Designation']['Ids']['Id'][0]['@Value']"
+										},
+										"sink": {
+											"name": "new_alloc",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['soap:Envelope']['soap:Body']['GetTransactionsAllBetweenResponse']['GetTransactionsAllBetweenResult']['Transaction']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_imodule_soap_api_call",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_donation_parse_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"login": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"startDate": {
+						"type": "string"
+					},
+					"endDate": {
+						"type": "string"
+					},
+					"includeFailedTransactions": {
+						"type": "string"
+					},
+					"includeNonMembers": {
+						"type": "string"
+					},
+					"includeTransactionDetails": {
+						"type": "string"
+					},
+					"includeUnreviewed": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-03-11T16:05:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_soap_xml_to_csv_param')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Full SOAP donation information",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "XmlSource",
+								"additionalColumns": [
+									{
+										"name": "p1",
+										"value": {
+											"value": "@pipeline().parameters.p1",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "controlid",
+										"value": {
+											"value": "@pipeline().parameters.controlId",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "login",
+										"value": {
+											"value": "@pipeline().parameters.login",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "password",
+										"value": {
+											"value": "@pipeline().parameters.password",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "changedFrom",
+										"value": {
+											"value": "@pipeline().parameters.changedFrom",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "changedTo",
+										"value": {
+											"value": "@pipeline().parameters.changedTo",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "POST",
+									"additionalHeaders": "Content-Type: text/xml; charset=utf-8\nHost: apica.imodules.com\n",
+									"requestBody": {
+										"value": "@{replace(replace(replace(replace(replace(replace('<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetMembersChangedDuring xmlns=\"http://imodules.com/WebServices/ControlQuery/\">\n      <login>?login</login>\n      <password>?password</password>\n      <controlId>?p1</controlId>\n      <columns>first_name,last_name,maiden_last_name,address_1,address_2,address_type,city,country,email_address,employer,phone_number,pref_class_year,pref_school_code,prefix,spousepartner_first_name,spousepartner_last_name,state,zipcode,anonymous gift,joint gift indicator,makeagift-donationamount,tribute gift name,tribute gift notification address,tribute gift notification name,tribute gift occasion,tribute gift type</columns>\n      <changedFrom>?changedFrom</changedFrom>\n      <changedTo>?changedTo</changedTo>\n      <includeNonMembers>true</includeNonMembers>\n      <includeBlankIds>true</includeBlankIds>\n      <includeTransactions>true</includeTransactions>\n      <includeTransactionDetails>true</includeTransactionDetails>\n      <includeUnreviewed>true</includeUnreviewed>\n      <filter>?controlid</filter>\n    </GetMembersChangedDuring>\n  </soap:Body>\n</soap:Envelope>', '?p1', pipeline().parameters.p1), '?controlid', pipeline().parameters.controlId), '?login', pipeline().parameters.login), '?password', pipeline().parameters.password), '?changedFrom', pipeline().parameters.changedFrom), '?changedTo', pipeline().parameters.changedTo)}\n",
+										"type": "Expression"
+									},
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "XmlReadSettings",
+									"validationMode": "none",
+									"namespaces": true
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['Column']['@Value']"
+										},
+										"sink": {
+											"name": "Total",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['@Type']"
+										},
+										"sink": {
+											"name": "Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['TransactionItems']['TransactionItem']['@Transaction_Item_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Item_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['TransactionId']"
+										},
+										"sink": {
+											"name": "TransactionId",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['Amount']"
+										},
+										"sink": {
+											"name": "Amount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['LinkedTransaction']['TotalScheduledAmount']"
+										},
+										"sink": {
+											"name": "TotalScheduledAmount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['@Transaction_Id']"
+										},
+										"sink": {
+											"name": "Transaction_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['@IsSuccess']"
+										},
+										"sink": {
+											"name": "IsSuccess"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['@IsReviewed']"
+										},
+										"sink": {
+											"name": "IsReviewed"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['@Instance_Id']"
+										},
+										"sink": {
+											"name": "Instance_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['@Imod_Member_Id']"
+										},
+										"sink": {
+											"name": "Imod_Member_Id"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "First_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][1]['@Value']"
+										},
+										"sink": {
+											"name": "Last_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][2]['@Value']"
+										},
+										"sink": {
+											"name": "maiden_last_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][3]['@Value']"
+										},
+										"sink": {
+											"name": "address_1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][4]['@Value']"
+										},
+										"sink": {
+											"name": "address_2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][5]['@Value']"
+										},
+										"sink": {
+											"name": "address_type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][6]['@Value']"
+										},
+										"sink": {
+											"name": "city",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][7]['@Value']"
+										},
+										"sink": {
+											"name": "country",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][8]['@Value']"
+										},
+										"sink": {
+											"name": "email_address"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][9]['@Value']"
+										},
+										"sink": {
+											"name": "employer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][10]['@Value']"
+										},
+										"sink": {
+											"name": "phone_number",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][11]['@Value']"
+										},
+										"sink": {
+											"name": "pref_class_year",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][12]['@Value']"
+										},
+										"sink": {
+											"name": "pref_school_code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][13]['@Value']"
+										},
+										"sink": {
+											"name": "prefix",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][14]['@Value']"
+										},
+										"sink": {
+											"name": "spousepartner_first_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][15]['@Value']"
+										},
+										"sink": {
+											"name": "spousepartner_last_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][16]['@Value']"
+										},
+										"sink": {
+											"name": "state",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Column'][17]['@Value']"
+										},
+										"sink": {
+											"name": "zipcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "anonymous gift",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['Column'][0]['@Value']"
+										},
+										"sink": {
+											"name": "amount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['Column'][1]['@Value']"
+										},
+										"sink": {
+											"name": "purchasedate",
+											"type": "DateTimeOffset"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['Column'][2]['@Value']"
+										},
+										"sink": {
+											"name": "authorizationcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Instances']['Instance']['Transactions']['Transaction']['Column'][3]['@Value']"
+										},
+										"sink": {
+											"name": "custtransnum",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['soap:Envelope']['soap:Body']['GetMembersChangedDuringResponse']['GetMembersChangedDuringResult']['MemberInformation']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_imodule_soap_api_call_controlquery",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_csv_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"controlId": {
+						"type": "String",
+						"defaultValue": "[Email_Address] is not null"
+					},
+					"p1": {
+						"type": "String",
+						"defaultValue": "1063"
+					},
+					"login": {
+						"type": "String",
+						"defaultValue": "E629F947-6D69-471B-875D-14277FEA4A53"
+					},
+					"password": {
+						"type": "String",
+						"defaultValue": "GSy7LgFmdFInBpHcoCS2"
+					},
+					"changedFrom": {
+						"type": "String",
+						"defaultValue": "2022-02-07"
+					},
+					"changedTo": {
+						"type": "String",
+						"defaultValue": "2022-02-08"
+					}
+				},
+				"folder": {
+					"name": "pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-08T15:35:25Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_transfer_input_files_merge_output_arch')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Input",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_csv_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachTransfer",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Input",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata Input').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy mutiple input to output",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "input",
+												"wildcardFileName": "*",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings",
+												"copyBehavior": "MergeFiles"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ""
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_csv_input",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_csv_ouput",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-02T14:24:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_transfer_input_files_output')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Input",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_csv_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachTransfer",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Input",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata Input').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy mutiple input to output",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "input",
+												"wildcardFileName": "*.csv",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings",
+												"copyBehavior": "MergeFiles"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_csv_input",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_csv_ouput",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-02T14:24:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_upsert_ouput_files_to_CDS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Input",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_csv_ouput",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachTransfer",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Input",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata Input').output.childItems",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy mutiple output files to CDS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "output",
+												"wildcardFileName": "*.csv",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DynamicsSink",
+											"writeBatchSize": 10,
+											"writeBehavior": "upsert",
+											"ignoreNullValues": false,
+											"alternateKeyName": "new_transactionidkey"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "new_amount",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_amount",
+														"type": "Decimal"
+													}
+												},
+												{
+													"source": {
+														"name": "new_appealcode",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_appealcode",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_authorizationcode",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_authorizationcode",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingcity",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingcity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "country",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingcountry",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingemail",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingemail",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingname",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingname",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingphone",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingphone",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingstate",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingstate",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingstreet1",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingstreet1",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingstreet2",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingstreet2",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_billingzip",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_billingzip",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_custtransnum",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_custtransnum",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "new_purchasedate",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_purchasedate",
+														"type": "DateTime"
+													}
+												},
+												{
+													"source": {
+														"name": "new_retrievalcode",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_retrievalcode",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Transaction_Id",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_transactionid",
+														"type": "Int32"
+													}
+												},
+												{
+													"source": {
+														"name": "Imod_Member_Id",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "new_imod_member_id",
+														"type": "String"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_csv_ouput",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_dynamics_dest",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-02T14:24:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_hosiptal_admission')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "df_covidreporting"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_hosiptaladdmission",
+								"type": "DatasetReference"
+							},
+							"name": "sourcehostipaladmisssion"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_country_lookup",
+								"type": "DatasetReference"
+							},
+							"name": "sourcelookup"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_dimdate",
+								"type": "DatasetReference"
+							},
+							"name": "sourcedimdate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_hosiptaladmweekly",
+								"type": "DatasetReference"
+							},
+							"name": "sinkWeekly"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_hosiptal_adm_daliy",
+								"type": "DatasetReference"
+							},
+							"name": "sinkDaily"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Selecthospitaladmission"
+						},
+						{
+							"name": "LookupSource"
+						},
+						{
+							"name": "Selectrequiredfield2"
+						},
+						{
+							"name": "ConditionalSplitDailyWeekly"
+						},
+						{
+							"name": "DerivedColumnYearWeek"
+						},
+						{
+							"name": "AggDimdate"
+						},
+						{
+							"name": "Joindimdateweekly"
+						},
+						{
+							"name": "PivotWeekly"
+						},
+						{
+							"name": "PivotDaily"
+						},
+						{
+							"name": "SortWeekly"
+						},
+						{
+							"name": "SortDaily"
+						},
+						{
+							"name": "SelectsinkWeekly"
+						},
+						{
+							"name": "SelectDaily"
+						}
+					],
+					"script": "source(output(\n\t\tcountry as string,\n\t\tindicator as string,\n\t\tdate as date,\n\t\tyear_week as string,\n\t\tvalue as double,\n\t\tsource as string,\n\t\turl as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcehostipaladmisssion\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcelookup\nsource(output(\n\t\tdate_key as string,\n\t\tdate as string,\n\t\tyear as string,\n\t\tmonth as string,\n\t\tday as string,\n\t\tday_name as string,\n\t\tday_of_year as string,\n\t\tweek_of_month as string,\n\t\tweek_of_year as string,\n\t\tmonth_name as string,\n\t\tyear_month as string,\n\t\tyear_week as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcedimdate\nsourcehostipaladmisssion select(mapColumn(\n\t\tcountry,\n\t\tindicator,\n\t\treported_date = date,\n\t\treported_year_week = year_week,\n\t\tvalue,\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Selecthospitaladmission\nSelecthospitaladmission, sourcelookup lookup(Selecthospitaladmission@country == sourcelookup@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupSource\nLookupSource select(mapColumn(\n\t\tcountry = Selecthospitaladmission@country,\n\t\tindicator,\n\t\treported_date,\n\t\treported_year_week,\n\t\tvalue,\n\t\tsource,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Selectrequiredfield2\nSelectrequiredfield2 split(indicator == 'Weekly new hospital admissions per 100k' || indicator == 'Weekly new ICU admissions per 100k',\n\tdisjoint: false) ~> ConditionalSplitDailyWeekly@(Weekly, Daily)\nsourcedimdate derive(ecdc_year_week = year + '-W' +lpad(week_of_year, 2, '0')) ~> DerivedColumnYearWeek\nDerivedColumnYearWeek aggregate(groupBy(ecdc_year_week),\n\tweek_start_date = min(date),\n\t\tweek_end_date = max(date)) ~> AggDimdate\nConditionalSplitDailyWeekly@Weekly, AggDimdate join(reported_year_week == ecdc_year_week,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Joindimdateweekly\nJoindimdateweekly pivot(groupBy(country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_year_week,\n\t\tsource,\n\t\tweek_start_date,\n\t\tweek_end_date),\n\tpivotBy(indicator, ['Weekly new hospital admissions per 100k', 'Weekly new ICU admissions per 100k']),\n\tcount = sum(value),\n\tcolumnNaming: '$V-$N',\n\tlateral: true) ~> PivotWeekly\nConditionalSplitDailyWeekly@Daily pivot(groupBy(country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_date,\n\t\tsource),\n\tpivotBy(indicator, ['Daily hospital occupancy', 'Daily ICU occupancy']),\n\tcount = sum(value),\n\tcolumnNaming: '$V-$N',\n\tlateral: true) ~> PivotDaily\nPivotWeekly sort(desc(reported_year_week, true),\n\tasc(country, true)) ~> SortWeekly\nPivotDaily sort(desc(reported_date, true),\n\tasc(country, true)) ~> SortDaily\nSortWeekly select(mapColumn(\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_year_week,\n\t\tsource,\n\t\t{Weekly new hospital admissions per 100k-count},\n\t\t{Weekly new ICU admissions per 100k-count},\n\t\tweek_start_date,\n\t\tweek_end_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectsinkWeekly\nSortDaily select(mapColumn(\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_date,\n\t\tsource,\n\t\t{Daily hospital occupancy-count},\n\t\t{Daily ICU occupancy-count}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectDaily\nSelectsinkWeekly sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['hospital_adm_weekly.csv'],\n\ttruncate: true,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sinkWeekly\nSelectDaily sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['hospital_adm_daily.csv'],\n\ttruncate: true,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sinkDaily"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_imodules_xmlsource')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "df_dynamics_imdoule"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_xml_imod_source_data",
+								"type": "DatasetReference"
+							},
+							"name": "imodulesxmlsource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_dynamics_dest",
+								"type": "DatasetReference"
+							},
+							"name": "loadsinktoDataVerse"
+						}
+					],
+					"transformations": [
+						{
+							"name": "xmlFlatten"
+						},
+						{
+							"name": "xmltoDerivedColumn"
+						}
+					],
+					"script": "source(output(\n\t\t{http://schemas.xmlsoap.org/soap/envelope/,Envelope} as ({http://schemas.xmlsoap.org/soap/envelope/,Body} as ({http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse} as ({http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult} as ({http://imodules.com/WebServices/TransactionsQuery/,Transaction} as ({@IsReviewed} as boolean, {@IsSuccess} as boolean, {@Transaction_Id} as short, {http://imodules.com/WebServices/TransactionsQuery/,Column} as ({@Name} as string, {@Value} as string, {http://imodules.com/WebServices/TransactionsQuery/,Designations} as ({http://imodules.com/WebServices/TransactionsQuery/,Designation} as ({@Amount} as double, {@DesignationInstructions} as string, {@ID} as short, {@Text} as string, {@Value} as short, {http://imodules.com/WebServices/TransactionsQuery/,Ids} as ({http://imodules.com/WebServices/TransactionsQuery/,Id} as ({@Name} as string, {@Value} as string)[]))))[], {http://imodules.com/WebServices/TransactionsQuery/,LinkedTransaction} as ({http://imodules.com/WebServices/TransactionsQuery/,Amount} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,ControlId} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,ControlName} as string, {http://imodules.com/WebServices/TransactionsQuery/,ControlType} as string, {http://imodules.com/WebServices/TransactionsQuery/,PaymentType} as string, {http://imodules.com/WebServices/TransactionsQuery/,TotalScheduledAmount} as boolean, {http://imodules.com/WebServices/TransactionsQuery/,TransactionId} as boolean), {http://imodules.com/WebServices/TransactionsQuery/,TransactionItems} as ({http://imodules.com/WebServices/TransactionsQuery/,TransactionItem} as ({@Imod_Member_Id} as integer, {@Transaction_Item_Id} as string, {@Type} as string, {http://imodules.com/WebServices/TransactionsQuery/,Column} as ({@Name} as string, {@Value} as double))))[]))))\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tvalidationMode: 'none',\n\tnamespaces: true) ~> imodulesxmlsource\nimodulesxmlsource foldDown(unroll({http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}),\n\tmapColumn(\n\t\tTransaction_Id = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{@Transaction_Id},\n\t\tColumn = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,Column},\n\t\tLinkedTransaction = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,LinkedTransaction},\n\t\tTransactionItems = {http://schemas.xmlsoap.org/soap/envelope/,Envelope}.{http://schemas.xmlsoap.org/soap/envelope/,Body}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResponse}.{http://imodules.com/WebServices/TransactionsQuery/,GetTransactionsAllBetweenResult}.{http://imodules.com/WebServices/TransactionsQuery/,Transaction}.{http://imodules.com/WebServices/TransactionsQuery/,TransactionItems}\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> xmlFlatten\nxmlFlatten derive(amount = iif(Column[1].{@Name} ==\"amount\" , Column[1].{@Value},\"0\" ),\n\t\tpurchasedate = iif(Column[2].{@Name} ==\"purchasedate\" , Column[2].{@Value}, Column[2].{@Value} ),\n\t\tTransaction_Id = Transaction_Id,\n\t\tbillingname = iif(Column[8].{@Name} ==\"billingname\" , Column[8].{@Value}, Column[8].{@Value})) ~> xmltoDerivedColumn\nxmltoDerivedColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tnew_purchasedate = purchasedate,\n\t\tnew_transactionid = Transaction_Id,\n\t\tnew_billingname = billingname\n\t)) ~> loadsinktoDataVerse"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_transfer_mut_source_output')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "pl_ssrp_eip"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_csv_ouput",
+								"type": "DatasetReference"
+							},
+							"name": "sourceoutput"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_country_lkp",
+								"type": "DatasetReference"
+							},
+							"name": "sourcecountry"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_csv_ouput",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SelectSource"
+						},
+						{
+							"name": "Join1"
+						},
+						{
+							"name": "Select1"
+						}
+					],
+					"script": "source(output(\n\t\tColumnName as string,\n\t\tnew_total as short,\n\t\tImod_Member_Id as integer,\n\t\tType as string,\n\t\tTransaction_Item_Id as string,\n\t\tTransactionId as boolean,\n\t\tAmount as boolean,\n\t\tControlId as boolean,\n\t\tTotalScheduledAmount as boolean,\n\t\tTransaction_Id as short,\n\t\tnew_amount as short,\n\t\tnew_purchasedate as string,\n\t\tnew_authorizationcode as string,\n\t\tnew_custtransnum as string,\n\t\tnew_retrievalcode as string,\n\t\tnew_appealcode as string,\n\t\tnew_transactionlastupdated as string,\n\t\tnew_billingname as string,\n\t\tnew_creditcardtype as string,\n\t\tnew_lastfourdigits as short,\n\t\tnew_billingemail as string,\n\t\tnew_billingphone as string,\n\t\tnew_billingstreet1 as string,\n\t\tnew_billingstreet2 as string,\n\t\tnew_billingcity as string,\n\t\tnew_billingstate as string,\n\t\tnew_billingzip as integer,\n\t\tnew_billingcountry as string,\n\t\tnew_paymenttype as string,\n\t\tnew_control_id as short,\n\t\tnew_Designation as string,\n\t\tnew_alloc as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\twildcardPaths:['input'],\n\tpartitionBy('hash', 1)) ~> sourceoutput\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcecountry\nsourceoutput select(mapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectSource\nSelectSource, sourcecountry join(new_billingcountry == country_code_2_digit,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> Join1\nJoin1 select(mapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc,\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tcontinent,\n\t\tpopulation\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['don_output.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tImod_Member_Id,\n\t\tAmount,\n\t\tControlId,\n\t\tTransaction_Id,\n\t\tnew_amount,\n\t\tnew_purchasedate,\n\t\tnew_authorizationcode,\n\t\tnew_custtransnum,\n\t\tnew_retrievalcode,\n\t\tnew_appealcode,\n\t\tnew_transactionlastupdated,\n\t\tnew_billingname,\n\t\tnew_creditcardtype,\n\t\tnew_lastfourdigits,\n\t\tnew_billingemail,\n\t\tnew_billingphone,\n\t\tnew_billingstreet1,\n\t\tnew_billingstreet2,\n\t\tnew_billingcity,\n\t\tnew_billingstate,\n\t\tnew_billingzip,\n\t\tnew_billingcountry,\n\t\tnew_paymenttype,\n\t\tnew_control_id,\n\t\tnew_Designation,\n\t\tnew_alloc,\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tcontinent,\n\t\tpopulation\n\t),\n\tpartitionBy('hash', 1)) ~> sink1"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_transform_cases_deaths')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "df_covidreporting"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_cases_deaths",
+								"type": "DatasetReference"
+							},
+							"name": "casesanddeathssource"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_country_lookup",
+								"type": "DatasetReference"
+							},
+							"name": "countrylookupsource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_processed_cases_deaths",
+								"type": "DatasetReference"
+							},
+							"name": "CasesanddeathsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Filter1"
+						},
+						{
+							"name": "Selectrequiredfields"
+						},
+						{
+							"name": "Pivotcasesdeaths"
+						},
+						{
+							"name": "Lookupcountrycode"
+						},
+						{
+							"name": "Selectforsink"
+						}
+					],
+					"script": "source(output(\n\t\tcountry as string,\n\t\tcountry_code as string,\n\t\tcontinent as string,\n\t\tpopulation as string,\n\t\tindicator as string,\n\t\tdaily_count as integer,\n\t\tdate as string,\n\t\trate_14_day as string,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> casesanddeathssource\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> countrylookupsource\ncasesanddeathssource filter(continent == 'Europe' && not(isNull(country_code))) ~> Filter1\nFilter1 select(mapColumn(\n\t\tcountry,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tindicator,\n\t\tdaily_count,\n\t\tsource,\n\t\teach(match(name=='date'),\n\t\t\t'reported'+'_date' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Selectrequiredfields\nSelectrequiredfields pivot(groupBy(country,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tsource,\n\t\treported_date),\n\tpivotBy(indicator, ['confirmed cases', 'deaths']),\n\tcount = sum(daily_count),\n\tcolumnNaming: '$V_$N',\n\tlateral: true) ~> Pivotcasesdeaths\nPivotcasesdeaths, countrylookupsource lookup(Pivotcasesdeaths@country == countrylookupsource@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> Lookupcountrycode\nLookupcountrycode select(mapColumn(\n\t\tcountry = Pivotcasesdeaths@country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\t{confirmed cases_count},\n\t\tdeaths_count,\n\t\tpopulation = Pivotcasesdeaths@population,\n\t\tsource,\n\t\treported_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Selectforsink\nSelectforsink sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['cases_and_deaths.csv'],\n\ttruncate: true,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> CasesanddeathsSink"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lp_transform_cases_deaths')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "lp_covidreporting"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "lp_raw_case_and_death",
+								"type": "DatasetReference"
+							},
+							"name": "CaseAndDeathSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "lp_country_lookup",
+								"type": "DatasetReference"
+							},
+							"name": "CountryLookup"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "lp_processed_cases_and_death",
+								"type": "DatasetReference"
+							},
+							"name": "CasesAndDeathSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilterEuropeOnly"
+						},
+						{
+							"name": "SelectOnlyRequiredFields"
+						},
+						{
+							"name": "PivotCount"
+						},
+						{
+							"name": "LookupCountry"
+						},
+						{
+							"name": "SelectForSing"
+						}
+					],
+					"script": "source(output(\n\t\tcountry as string,\n\t\tcountry_code as string,\n\t\tcontinent as string,\n\t\tpopulation as integer,\n\t\tindicator as string,\n\t\tdaily_count as integer,\n\t\tdate as date,\n\t\trate_14_day as double,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CaseAndDeathSource\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CountryLookup\nCaseAndDeathSource filter(continent=='Europe' && not(isNull(country_code))) ~> FilterEuropeOnly\nFilterEuropeOnly select(mapColumn(\n\t\tcountry,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tindicator,\n\t\tdaily_count,\n\t\tsource,\n\t\teach(match(name=='date'),\n\t\t\t'reported_date' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectOnlyRequiredFields\nSelectOnlyRequiredFields pivot(groupBy(country,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tsource,\n\t\treported_date),\n\tpivotBy(indicator, ['confirmed cases', 'deaths']),\n\tcount = sum(daily_count),\n\tcolumnNaming: '$V_$N',\n\tlateral: true) ~> PivotCount\nPivotCount, CountryLookup lookup(PivotCount@country == CountryLookup@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupCountry\nLookupCountry select(mapColumn(\n\t\tcountry = PivotCount@country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation = PivotCount@population,\n\t\tcases_count = {confirmed cases_count},\n\t\tdeaths_count,\n\t\treported_date,\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectForSing\nSelectForSing sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> CasesAndDeathSink"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lp_transform_hospital_admissions')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "lp_covidreporting"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "lp_raw_hospital_admission",
+								"type": "DatasetReference"
+							},
+							"name": "HospitalAdmissions"
+						},
+						{
+							"dataset": {
+								"referenceName": "lp_country_lookup",
+								"type": "DatasetReference"
+							},
+							"name": "sourceLookUpCountryCode"
+						},
+						{
+							"dataset": {
+								"referenceName": "lp_dim_date_lookup",
+								"type": "DatasetReference"
+							},
+							"name": "dimDateSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "lp_processed_admission_weekly",
+								"type": "DatasetReference"
+							},
+							"name": "WeeklySink"
+						},
+						{
+							"dataset": {
+								"referenceName": "lp_processed_admission_daily",
+								"type": "DatasetReference"
+							},
+							"name": "DailySink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SelectRequiredField"
+						},
+						{
+							"name": "LookupCountryCode"
+						},
+						{
+							"name": "SelectReqiuredFieldWithcountryCode"
+						},
+						{
+							"name": "ConditionalSplitDailyFromWeekly"
+						},
+						{
+							"name": "DerivedECDCYearWeek"
+						},
+						{
+							"name": "AggregateDimDate"
+						},
+						{
+							"name": "JoinWithDate"
+						},
+						{
+							"name": "PivotWeeklyData"
+						},
+						{
+							"name": "PivotDailyData"
+						},
+						{
+							"name": "SortWeekly"
+						},
+						{
+							"name": "SortDaily"
+						},
+						{
+							"name": "SelectWeekly"
+						},
+						{
+							"name": "SelectDaily"
+						}
+					],
+					"script": "source(output(\n\t\tcountry as string,\n\t\tindicator as string,\n\t\tdate as string,\n\t\tyear_week as string,\n\t\tvalue as double,\n\t\tsource as string,\n\t\turl as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> HospitalAdmissions\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceLookUpCountryCode\nsource(output(\n\t\tdate_key as string,\n\t\tdate as string,\n\t\tyear as string,\n\t\tmonth as string,\n\t\tday as string,\n\t\tday_name as string,\n\t\tday_of_year as string,\n\t\tweek_of_month as string,\n\t\tweek_of_year as string,\n\t\tmonth_name as string,\n\t\tyear_month as string,\n\t\tyear_week as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> dimDateSource\nHospitalAdmissions select(mapColumn(\n\t\tcountry,\n\t\tindicator,\n\t\treported_date = date,\n\t\treported_year_week = year_week,\n\t\tvalue,\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectRequiredField\nSelectRequiredField, sourceLookUpCountryCode lookup(SelectRequiredField@country == sourceLookUpCountryCode@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupCountryCode\nLookupCountryCode select(mapColumn(\n\t\tcountry = SelectRequiredField@country,\n\t\tindicator,\n\t\treported_date,\n\t\treported_year_week,\n\t\tvalue,\n\t\tsource,\n\t\tcountry = sourceLookUpCountryCode@country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectReqiuredFieldWithcountryCode\nSelectReqiuredFieldWithcountryCode split(startsWith(indicator, 'Weekly'),\n\tdisjoint: false) ~> ConditionalSplitDailyFromWeekly@(Weekly, Daily)\ndimDateSource derive(ecdc_year_week = year + '-W' + lpad(week_of_year, 2, '0')) ~> DerivedECDCYearWeek\nDerivedECDCYearWeek aggregate(groupBy(ecdc_year_week),\n\tweek_start_date = min(date),\n\t\tweek_end_date = max(date)) ~> AggregateDimDate\nConditionalSplitDailyFromWeekly@Weekly, AggregateDimDate join(reported_year_week == ecdc_year_week,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinWithDate\nJoinWithDate pivot(groupBy(country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_year_week,\n\t\tsource,\n\t\tweek_start_date,\n\t\tweek_end_date),\n\tpivotBy(indicator, ['Weekly new hospital admissions per 100k', 'Weekly new ICU admissions per 100k']),\n\tcount = sum(value),\n\tcolumnNaming: '$V_$N',\n\tlateral: true) ~> PivotWeeklyData\nConditionalSplitDailyFromWeekly@Daily pivot(groupBy(country,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_date,\n\t\tsource),\n\tpivotBy(indicator, ['Daily hospital occupancy', 'Daily ICU occupancy']),\n\tcount = sum(value),\n\tcolumnNaming: '$V_$N',\n\tlateral: true) ~> PivotDailyData\nPivotWeeklyData sort(desc(reported_year_week, true),\n\tasc(country, true)) ~> SortWeekly\nPivotDailyData sort(desc(reported_date, true),\n\tasc(country, true)) ~> SortDaily\nSortWeekly select(mapColumn(\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_year_week,\n\t\treported_week_start_date = week_start_date,\n\t\treported_week_end_date = week_end_date,\n\t\tnew_hospital_occupancy_count = {Weekly new hospital admissions per 100k_count},\n\t\tnew_icu_occupancy_count = {Weekly new ICU admissions per 100k_count},\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectWeekly\nSortDaily select(mapColumn(\n\t\tcountry,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation,\n\t\treported_date,\n\t\thospital_occupancy_count = {Daily hospital occupancy_count},\n\t\ticu_occupancy_count = {Daily ICU occupancy_count},\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectDaily\nSelectWeekly sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> WeeklySink\nSelectDaily sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DailySink"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lp_process_cases_and_deaths_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "transform_cases_and_deaths",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "lp_transform_cases_deaths",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"CaseAndDeathSource": {},
+									"CountryLookup": {},
+									"CasesAndDeathSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "lp_covid_reporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-25T21:17:45Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/lp_transform_cases_deaths')]"
+			]
+		}
+	]
+}

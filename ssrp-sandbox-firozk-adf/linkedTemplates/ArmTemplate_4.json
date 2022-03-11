@@ -1,0 +1,467 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ssrp-sandbox-firozk-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/lp_process_hospital_admissions_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "transform_hospital_admissions",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "lp_transform_hospital_admissions",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"HospitalAdmissions": {},
+									"sourceLookUpCountryCode": {},
+									"dimDateSource": {},
+									"WeeklySink": {},
+									"DailySink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "lp_covid_reporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-26T00:21:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_cases_deaths_dataflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_cases_deaths",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_transform_cases_deaths",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"casesanddeathssource": {},
+									"countrylookupsource": {},
+									"CasesanddeathsSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_covidreporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-12T22:39:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_dataflow_xml')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_imodules_xmlsource",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"imodulesxmlsource": {},
+									"loadsinktoDataVerse": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-24T22:14:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_df_hosiptal_admission')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_hosiptal_admission",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_hosiptal_admission",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcehostipaladmisssion": {},
+									"sourcelookup": {},
+									"sourcedimdate": {},
+									"sinkWeekly": {},
+									"sinkDaily": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_covidreporting"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-13T05:04:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_transfer_input_files_output_dataflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Input",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_csv_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachTransfer",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Input",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata Input').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Data flow1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "df_transfer_mut_source_output",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"sourceoutput": {},
+												"sourcecountry": {},
+												"sink1": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-03-11T16:29:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Masterpipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute SOAP Pipeline",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_soap_xml_to_csv_copy1",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"login": {
+									"value": "@pipeline().parameters.login",
+									"type": "Expression"
+								},
+								"password": {
+									"value": "@pipeline().parameters.password",
+									"type": "Expression"
+								},
+								"startDate": {
+									"value": "@pipeline().parameters.startDate",
+									"type": "Expression"
+								},
+								"endDate": {
+									"value": "@pipeline().parameters.endDate",
+									"type": "Expression"
+								},
+								"includeFailedTransactions": {
+									"value": "@pipeline().parameters.includeFailedTransactions",
+									"type": "Expression"
+								},
+								"includeNonMembers": {
+									"value": "@pipeline().parameters.includeNonMembers",
+									"type": "Expression"
+								},
+								"includeTransactionDetails": {
+									"value": "@pipeline().parameters.includeTransactionDetails",
+									"type": "Expression"
+								},
+								"includeUnreviewed": {
+									"value": "@pipeline().parameters.includeUnreviewed",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Execute Transform Multiple to Merge Pipeline",
+						"description": "Execute Transform Multiple Files CVS to Merge Pipeline, Lookup Country Source, Combine other Source Data into Single Output(DataFlow)",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Execute SOAP Pipeline",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_transfer_input_files_output_dataflow",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Execute Read output to CDS Pipeline",
+						"description": "Execute Read output to CDS Pipeline",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Execute Transform Multiple to Merge Pipeline",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_upsert_ouput_files_to_CDS",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"login": {
+						"type": "string",
+						"defaultValue": "E629F947-6D69-471B-875D-14277FEA4A53"
+					},
+					"password": {
+						"type": "string",
+						"defaultValue": "GSy7LgFmdFInBpHcoCS2"
+					},
+					"startDate": {
+						"type": "string",
+						"defaultValue": "2022-02-01"
+					},
+					"endDate": {
+						"type": "string",
+						"defaultValue": "2022-03-11"
+					},
+					"includeFailedTransactions": {
+						"type": "string",
+						"defaultValue": "true"
+					},
+					"includeNonMembers": {
+						"type": "string",
+						"defaultValue": "true"
+					},
+					"includeTransactionDetails": {
+						"type": "string",
+						"defaultValue": "true"
+					},
+					"includeUnreviewed": {
+						"type": "string",
+						"defaultValue": "true"
+					}
+				},
+				"folder": {
+					"name": "pl_xml_imodule_dynamics/pl_ssrp_eip"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-03-11T17:32:48Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_transfer_input_files_output_dataflow')]"
+			]
+		}
+	]
+}
