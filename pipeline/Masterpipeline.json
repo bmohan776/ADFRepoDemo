@@ -102,12 +102,10 @@
 				"defaultValue": "GSy7LgFmdFInBpHcoCS2"
 			},
 			"startDate": {
-				"type": "string",
-				"defaultValue": "2022-02-01"
+				"type": "string"
 			},
 			"endDate": {
-				"type": "string",
-				"defaultValue": "2022-03-11"
+				"type": "string"
 			},
 			"includeFailedTransactions": {
 				"type": "string",
